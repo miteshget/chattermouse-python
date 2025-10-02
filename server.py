@@ -398,7 +398,7 @@ def config():
         'appTitle': os.getenv('APP_TITLE', 'ChatterMouse'),
         'appSubtitle': os.getenv('APP_SUBTITLE', f"Powered by {os.getenv('CHATTERM_MODEL_NAME', 'AI Model')} via LangChain"),
         'chatAssistantName': os.getenv('CHAT_ASSISTANT_NAME', 'ChatterMouse'),
-        'welcomeMessage': os.getenv('WELCOME_MESSAGE', "Hey there! 🐭 This is ChatterMouse — the only assistant that squeaks back smarter than it sounds. What can I do for you?"),
+        'welcomeMessage': os.getenv('WELCOME_MESSAGE', "Hey there! This is ChatterMouse 🐭 — the only assistant that squeaks back smarter than it sounds. What can I do for you?"),
         'inputPlaceholder': os.getenv('INPUT_PLACEHOLDER', 'Type your message here...'),
         'loadingMessage': os.getenv('LOADING_MESSAGE', 'Squeaking up...'),
         'sendButtonText': os.getenv('SEND_BUTTON_TEXT', 'Send'),

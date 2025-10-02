@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1759385076997,
+    "user_id": 1759385076996,
+    "model_name": null,
+    "api_url": null,
+    "api_token": null,
+    "max_tokens": 512,
+    "temperature": 0.7,
+    "timeout": 30000,
+    "created_at": "2025-10-02T06:04:36.997949"
+  }
+]
