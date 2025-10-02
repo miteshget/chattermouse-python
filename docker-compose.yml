@@ -1,7 +1,10 @@
 version: '3.8'
 
 services:
-  chattermouse-chat:
+  chattermouse:
+    image: quay.io/mitsharm/chattermouse:latest
+    container_name: chattermouse
+    hostname: chattermouse
     build: .
     ports:
       - "3000:3000"

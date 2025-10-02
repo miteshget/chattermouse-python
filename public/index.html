@@ -28,7 +28,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #28292d 0%, #1e1d1f 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -51,10 +51,9 @@
         }
 
         .auth-logo {
-            width: 48px;
-            height: 48px;
+            width: 100px;
+            height: 100px;
             border-radius: 12px;
-            background: linear-gradient(135deg, #10a37f, #1a7f64);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -171,10 +170,11 @@
         }
 
         .logo {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            background: linear-gradient(135deg, #10a37f, #1a7f64);
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background-color: #202123;
+            /* background: linear-gradient(135deg, #10a37f, #1a7f64); */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -183,10 +183,11 @@
             font-size: 12px;
         }
 
+            
         .logo img {
             width: 100%;
             height: 100%;
-            border-radius: 8px;
+            border-radius: 12px;
             object-fit: cover;
         }
 
@@ -528,10 +529,9 @@
         }
 
         .welcome-logo {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 20px;
-            background: linear-gradient(135deg, #10a37f, #1a7f64);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -769,6 +769,24 @@
         .hidden {
             display: none !important;
         }
+
+        .footer {
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #8e8ea0;
+            border-top: 1px solid #4d4d4f;
+            background-color: #343541;
+        }
+
+        .footer a {
+            color: #10a37f;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -777,7 +795,7 @@
         <div class="auth-box">
             <div class="auth-header">
                 <div class="auth-logo" id="authLogo"></div>
-                <h1 class="auth-title" id="authTitle">Welcome to ChatterMouse</h1>
+                <h1 class="auth-title" id="authTitle">ChatterMouse</h1>
                 <p class="auth-subtitle" id="authSubtitle">Sign in to continue</p>
             </div>
 
@@ -887,7 +905,7 @@
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-screen" id="welcomeScreen">
                 <div class="welcome-logo" id="welcomeLogo"></div>
-                <h1 class="welcome-title" id="welcomeTitle">Welcome to ChatterMouse</h1>
+                <h1 class="welcome-title" id="welcomeTitle">ChatterMouse</h1>
                 <p class="welcome-subtitle" id="welcomeSubtitle">Start a conversation with our AI assistant</p>
             </div>
         </div>
@@ -906,16 +924,20 @@
 
         <div class="chat-input-container">
             <div class="chat-input-wrapper">
-                <textarea 
-                    id="messageInput" 
-                    class="chat-input" 
-                    placeholder="Type your message here..." 
+                <textarea
+                    id="messageInput"
+                    class="chat-input"
+                    placeholder="Type your message here..."
                     rows="1"
                 ></textarea>
                 <button class="send-button" id="sendButton">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
+        </div>
+
+        <div class="footer">
+            Created by <strong>Mitesh The Mouse</strong> | Licensed under GPLv2
         </div>
     </div>
 
@@ -1016,10 +1038,13 @@
                 this.currentChatId = null;
                 this.isMobile = window.innerWidth <= 768;
                 this.currentView = 'signin'; // 'signin', 'signup', or 'forgot'
-                
+
                 this.initializeElements();
                 this.initEventListeners();
-                
+
+                // Load auth logo immediately on page load
+                this.loadAuthLogo();
+
                 if (this.token) {
                     this.verifyToken();
                 } else {
@@ -1297,6 +1322,21 @@
                 setTimeout(() => {
                     this.startNewChat();
                 }, 100);
+            }
+
+            loadAuthLogo() {
+                const authLogo = document.getElementById('authLogo');
+                if (authLogo) {
+                    const img = document.createElement('img');
+                    img.src = '/images/logo.png?t=' + Date.now();
+                    img.alt = 'Logo';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.borderRadius = 'inherit';
+                    img.style.objectFit = 'cover';
+                    authLogo.innerHTML = '';
+                    authLogo.appendChild(img);
+                }
             }
 
             updateUserInfo() {

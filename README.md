@@ -370,7 +370,13 @@ python server.py
 
 ## License
 
-MIT
+This project is licensed under the GNU General Public License v2.0 (GPLv2).
+
+See the [LICENSE](LICENSE) file for details.
+
+## Author
+
+Created by **Mitesh The Mouse**
 
 ## Contributing
 
