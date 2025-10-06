@@ -674,7 +674,8 @@ def config():
         'inputPlaceholder': os.getenv('INPUT_PLACEHOLDER', 'Type your message here...'),
         'loadingMessage': os.getenv('LOADING_MESSAGE', 'Squeaking up...'),
         'sendButtonText': os.getenv('SEND_BUTTON_TEXT', 'Send'),
-        'maxConversationHistory': int(os.getenv('MAX_CONVERSATION_HISTORY', '30'))
+        'maxConversationHistory': int(os.getenv('MAX_CONVERSATION_HISTORY', '30')),
+        'modelName': os.getenv('CHATTERM_MODEL_NAME', '')
     })
 
 

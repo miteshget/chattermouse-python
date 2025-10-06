@@ -990,7 +990,7 @@
             </button>
             <div class="model-info">
                 <i class="fas fa-brain"></i>
-                <span id="modelName">granite-3-2-8b-instruct</span>
+                <span id="modelName"></span>
             </div>
         </div>
 
@@ -1053,12 +1053,12 @@
 
                 <div class="settings-field">
                     <label class="settings-label" for="adminModelName">Model Name</label>
-                    <input type="text" id="adminModelName" class="settings-input" placeholder="granite-3-2-8b-instruct">
+                    <input type="text" id="adminModelName" class="settings-input" placeholder="chattarmouse-model-1-8b-demo">
                 </div>
 
                 <div class="settings-field">
                     <label class="settings-label" for="adminApiUrl">API URL</label>
-                    <input type="url" id="adminApiUrl" class="settings-input" placeholder="https://api.example.com/v1/completions">
+                    <input type="url" id="adminApiUrl" class="settings-input" placeholder="https://api.chattermouse.com/v1/completions">
                 </div>
 
                 <div class="settings-field">
@@ -1665,6 +1665,7 @@
                 this.messageInput.placeholder = this.config.inputPlaceholder;
                 document.getElementById('loadingMessage').textContent = this.config.loadingMessage;
                 document.getElementById('loadingAvatar').textContent = this.config.chatAssistantName;
+                document.getElementById('modelName').textContent = this.config.modelName || '';
 
                 // Update logos to use local logo.png
                 const logos = [document.getElementById('appLogo'), document.getElementById('welcomeLogo'), document.getElementById('authLogo')];
