@@ -18,6 +18,9 @@ services:
       - CHATTERM_MAX_TOKENS=${CHATTERM_MAX_TOKENS}
       - CHATTERM_TEMPERATURE=${CHATTERM_TEMPERATURE}
       - CHATTERM_TIMEOUT=${CHATTERM_TIMEOUT}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-http://localhost:3000/api/auth/google/callback}
       - APP_TITLE=${APP_TITLE}
       - APP_SUBTITLE=${APP_SUBTITLE}
       - CHAT_ASSISTANT_NAME=${CHAT_ASSISTANT_NAME}
@@ -29,6 +32,9 @@ services:
       - MAX_CONVERSATION_HISTORY=${MAX_CONVERSATION_HISTORY}
     env_file:
       - .env
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]

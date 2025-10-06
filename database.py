@@ -60,7 +60,7 @@ class DatabaseManager:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
     # User management methods
-    def create_user(self, username, email, password, is_admin=False):
+    def create_user(self, username, email, password, is_admin=False, oauth_provider=None, oauth_id=None):
         """Create a new user"""
         users = self.read_file(self.users_file)
 
@@ -68,13 +68,19 @@ class DatabaseManager:
         if any(u['username'] == username or u['email'] == email for u in users):
             raise Exception('Username or email already exists')
 
-        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        # Only hash password if provided (OAuth users may not have password)
+        password_hash = None
+        if password:
+            password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
         user = {
             'id': int(datetime.now().timestamp() * 1000),
             'username': username,
             'email': email,
             'password_hash': password_hash,
             'is_admin': is_admin,
+            'oauth_provider': oauth_provider,
+            'oauth_id': oauth_id,
             'created_at': datetime.utcnow().isoformat()
         }
 
@@ -117,6 +123,22 @@ class DatabaseManager:
         """Get user by username or email"""
         users = self.read_file(self.users_file)
         user = next((u for u in users if u['username'] == username_or_email or u['email'] == username_or_email), None)
+        if user:
+            return {'id': user['id'], 'username': user['username'], 'email': user['email'], 'is_admin': user['is_admin']}
+        return None
+
+    def get_user_by_oauth(self, oauth_provider, oauth_id):
+        """Get user by OAuth provider and ID"""
+        users = self.read_file(self.users_file)
+        user = next((u for u in users if u.get('oauth_provider') == oauth_provider and u.get('oauth_id') == oauth_id), None)
+        if user:
+            return {'id': user['id'], 'username': user['username'], 'email': user['email'], 'is_admin': user['is_admin']}
+        return None
+
+    def get_user_by_email(self, email):
+        """Get user by email"""
+        users = self.read_file(self.users_file)
+        user = next((u for u in users if u['email'] == email), None)
         if user:
             return {'id': user['id'], 'username': user['username'], 'email': user['email'], 'is_admin': user['is_admin']}
         return None
