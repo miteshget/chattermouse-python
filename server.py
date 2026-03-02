@@ -32,6 +32,7 @@ class ChatterMouseLLM(LLM):
     temperature: float = 0.7
     api_token: Optional[str] = None
     timeout: int = 30000
+    api_format: str = "chat"  # "chat" or "completions"
 
     def __init__(self, **kwargs):
         # Extract our custom parameters
@@ -41,6 +42,7 @@ class ChatterMouseLLM(LLM):
         temperature = kwargs.pop('temperature', None) or float(os.getenv('CHATTERM_TEMPERATURE', '0.7'))
         api_token = kwargs.pop('api_token', None) or os.getenv('CHATTERM_API_TOKEN')
         timeout = kwargs.pop('timeout', None) or int(os.getenv('CHATTERM_TIMEOUT', '30000'))
+        api_format = kwargs.pop('api_format', None) or os.getenv('CHATTERM_API_FORMAT', 'chat')
 
         # Call parent init
         super().__init__(**kwargs)
@@ -52,6 +54,7 @@ class ChatterMouseLLM(LLM):
         self.temperature = temperature
         self.api_token = api_token
         self.timeout = timeout
+        self.api_format = api_format
 
     @property
     def _llm_type(self) -> str:
@@ -66,14 +69,25 @@ class ChatterMouseLLM(LLM):
             if self.api_token:
                 headers['Authorization'] = f'Bearer {self.api_token}'
 
-            # Use chat completions format with messages array
-            payload = {
-                'model': self.model_name,
-                'messages': [{'role': 'user', 'content': prompt}],
-                'max_tokens': self.max_tokens,
-                'temperature': self.temperature,
-                'stream': False
-            }
+            # Choose payload format based on api_format setting
+            if self.api_format == 'completions':
+                # Legacy completions format with prompt
+                payload = {
+                    'model': self.model_name,
+                    'prompt': prompt,
+                    'max_tokens': self.max_tokens,
+                    'temperature': self.temperature,
+                    'stream': False
+                }
+            else:
+                # Chat completions format with messages array (default)
+                payload = {
+                    'model': self.model_name,
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': self.max_tokens,
+                    'temperature': self.temperature,
+                    'stream': False
+                }
 
             response = requests.post(
                 self.api_url,
@@ -84,14 +98,24 @@ class ChatterMouseLLM(LLM):
             response.raise_for_status()
 
             data = response.json()
-            # Chat completions response format
+
+            # Parse response based on format
             if data and 'choices' in data and len(data['choices']) > 0:
-                message = data['choices'][0].get('message', {})
-                content = message.get('content', '')
-                if content:
-                    return content.strip()
+                if self.api_format == 'completions':
+                    # Completions format: choices[0].text
+                    text = data['choices'][0].get('text', '')
+                    if text:
+                        return text.strip()
+                    else:
+                        raise Exception('No text in response')
                 else:
-                    raise Exception('No content in response message')
+                    # Chat completions format: choices[0].message.content
+                    message = data['choices'][0].get('message', {})
+                    content = message.get('content', '')
+                    if content:
+                        return content.strip()
+                    else:
+                        raise Exception('No content in response message')
             else:
                 raise Exception('No response from model')
 
@@ -202,7 +226,8 @@ def create_user_llm(user_settings):
         'api_token': user_settings.get('api_token') if user_settings else None or os.getenv('CHATTERM_API_TOKEN'),
         'max_tokens': user_settings.get('max_tokens') if user_settings else None or int(os.getenv('CHATTERM_MAX_TOKENS', '512')),
         'temperature': user_settings.get('temperature') if user_settings else None or float(os.getenv('CHATTERM_TEMPERATURE', '0.7')),
-        'timeout': user_settings.get('timeout') if user_settings else None or int(os.getenv('CHATTERM_TIMEOUT', '30000'))
+        'timeout': user_settings.get('timeout') if user_settings else None or int(os.getenv('CHATTERM_TIMEOUT', '30000')),
+        'api_format': user_settings.get('api_format') if user_settings else None or os.getenv('CHATTERM_API_FORMAT', 'chat')
     }
     return ChatterMouseLLM(**options)
 
@@ -811,7 +836,8 @@ def admin_get_system_settings():
             'apiToken': os.getenv('CHATTERM_API_TOKEN', ''),
             'maxTokens': int(os.getenv('CHATTERM_MAX_TOKENS', '512')),
             'temperature': float(os.getenv('CHATTERM_TEMPERATURE', '0.7')),
-            'timeout': int(os.getenv('CHATTERM_TIMEOUT', '30000'))
+            'timeout': int(os.getenv('CHATTERM_TIMEOUT', '30000')),
+            'apiFormat': os.getenv('CHATTERM_API_FORMAT', 'chat')
         })
     except Exception as error:
         print(f'Admin get system settings error: {str(error)}')
@@ -830,6 +856,7 @@ def admin_update_system_settings():
         max_tokens = int(data.get('maxTokens', 512))
         temperature = float(data.get('temperature', 0.7))
         timeout = int(data.get('timeout', 30000))
+        api_format = data.get('apiFormat', 'chat')
 
         # Validation
         if max_tokens < 1 or max_tokens > 10000:
@@ -838,6 +865,8 @@ def admin_update_system_settings():
             return jsonify({'error': 'Temperature must be between 0 and 1'}), 400
         if timeout < 1000 or timeout > 300000:
             return jsonify({'error': 'Timeout must be between 1000 and 300000'}), 400
+        if api_format not in ['chat', 'completions']:
+            return jsonify({'error': 'API format must be either "chat" or "completions"'}), 400
 
         # Read current .env file
         env_path = Path(__file__).parent / '.env'
@@ -854,7 +883,8 @@ def admin_update_system_settings():
             'CHATTERM_API_TOKEN': False,
             'CHATTERM_MAX_TOKENS': False,
             'CHATTERM_TEMPERATURE': False,
-            'CHATTERM_TIMEOUT': False
+            'CHATTERM_TIMEOUT': False,
+            'CHATTERM_API_FORMAT': False
         }
 
         for i, line in enumerate(env_lines):
@@ -876,6 +906,9 @@ def admin_update_system_settings():
             elif line.strip().startswith('CHATTERM_TIMEOUT='):
                 env_lines[i] = f'CHATTERM_TIMEOUT={timeout}\n'
                 updated['CHATTERM_TIMEOUT'] = True
+            elif line.strip().startswith('CHATTERM_API_FORMAT='):
+                env_lines[i] = f'CHATTERM_API_FORMAT={api_format}\n'
+                updated['CHATTERM_API_FORMAT'] = True
 
         # Add missing variables
         if not updated['CHATTERM_MODEL_NAME']:
@@ -890,6 +923,8 @@ def admin_update_system_settings():
             env_lines.append(f'CHATTERM_TEMPERATURE={temperature}\n')
         if not updated['CHATTERM_TIMEOUT']:
             env_lines.append(f'CHATTERM_TIMEOUT={timeout}\n')
+        if not updated['CHATTERM_API_FORMAT']:
+            env_lines.append(f'CHATTERM_API_FORMAT={api_format}\n')
 
         # Write back to .env file
         with open(env_path, 'w') as f:

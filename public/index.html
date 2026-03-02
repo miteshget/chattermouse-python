@@ -706,6 +706,16 @@
             font-family: monospace;
         }
 
+        .settings-input select,
+        select.settings-input {
+            cursor: pointer;
+        }
+
+        select.settings-input option {
+            background-color: #40414f;
+            color: #ececf1;
+        }
+
         .settings-range {
             display: flex;
             align-items: center;
@@ -1064,6 +1074,17 @@
                 <div class="settings-field">
                     <label class="settings-label" for="adminApiToken">API Token</label>
                     <input type="password" id="adminApiToken" class="settings-input" placeholder="Your API token">
+                </div>
+
+                <div class="settings-field">
+                    <label class="settings-label" for="adminApiFormat">API Format</label>
+                    <select id="adminApiFormat" class="settings-input">
+                        <option value="chat">Chat (messages array) - For /v1/chat/completions</option>
+                        <option value="completions">Completions (prompt) - For /v1/completions</option>
+                    </select>
+                    <small style="color: #8e8ea0; font-size: 12px; display: block; margin-top: 4px;">
+                        Choose "chat" for OpenAI-style chat endpoints or "completions" for legacy prompt-based endpoints
+                    </small>
                 </div>
 
                 <div class="settings-field">
@@ -1980,6 +2001,7 @@
                         document.getElementById('adminModelName').value = data.modelName || '';
                         document.getElementById('adminApiUrl').value = data.apiUrl || '';
                         document.getElementById('adminApiToken').value = data.apiToken || '';
+                        document.getElementById('adminApiFormat').value = data.apiFormat || 'chat';
                         document.getElementById('adminMaxTokens').value = data.maxTokens || 512;
                         document.getElementById('adminTemperature').value = data.temperature || 0.7;
                         document.getElementById('adminTempValue').textContent = data.temperature || 0.7;
@@ -1996,6 +2018,7 @@
                         modelName: document.getElementById('adminModelName').value,
                         apiUrl: document.getElementById('adminApiUrl').value,
                         apiToken: document.getElementById('adminApiToken').value,
+                        apiFormat: document.getElementById('adminApiFormat').value,
                         maxTokens: parseInt(document.getElementById('adminMaxTokens').value),
                         temperature: parseFloat(document.getElementById('adminTemperature').value),
                         timeout: parseInt(document.getElementById('adminTimeout').value)
