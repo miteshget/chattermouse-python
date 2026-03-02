@@ -66,9 +66,10 @@ class ChatterMouseLLM(LLM):
             if self.api_token:
                 headers['Authorization'] = f'Bearer {self.api_token}'
 
+            # Use chat completions format with messages array
             payload = {
                 'model': self.model_name,
-                'prompt': prompt,
+                'messages': [{'role': 'user', 'content': prompt}],
                 'max_tokens': self.max_tokens,
                 'temperature': self.temperature,
                 'stream': False
@@ -83,8 +84,14 @@ class ChatterMouseLLM(LLM):
             response.raise_for_status()
 
             data = response.json()
+            # Chat completions response format
             if data and 'choices' in data and len(data['choices']) > 0:
-                return data['choices'][0]['text'].strip()
+                message = data['choices'][0].get('message', {})
+                content = message.get('content', '')
+                if content:
+                    return content.strip()
+                else:
+                    raise Exception('No content in response message')
             else:
                 raise Exception('No response from model')
 
